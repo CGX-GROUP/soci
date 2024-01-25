@@ -23,18 +23,18 @@ blob::~blob()
     delete backEnd_;
 }
 
-std::size_t blob::get_len()
+std::size_t blob::get_len() const
 {
     return backEnd_->get_len();
 }
 
-std::size_t blob::read(std::size_t offset, char *buf, std::size_t toRead)
+std::size_t blob::read(std::size_t offset, char *buf, std::size_t toRead) const
 {
     return backEnd_->read(offset, buf, toRead);
 }
 
 std::size_t blob::read_from_start(char * buf, std::size_t toRead,
-    std::size_t offset)
+    std::size_t offset) const
 {
     return backEnd_->read_from_start(buf, toRead, offset);
 }

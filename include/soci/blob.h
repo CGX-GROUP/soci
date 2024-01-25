@@ -29,14 +29,14 @@ public:
     explicit blob(session & s);
     ~blob();
 
-    std::size_t get_len();
+    std::size_t get_len() const;
 
     // offset is backend-specific
-    std::size_t read(std::size_t offset, char * buf, std::size_t toRead);
+    std::size_t read(std::size_t offset, char * buf, std::size_t toRead) const;
 
     // offset starts from 0
     std::size_t read_from_start(char * buf, std::size_t toRead,
-        std::size_t offset = 0);
+        std::size_t offset = 0) const;
 
     // offset is backend-specific
     std::size_t write(std::size_t offset, char const * buf,
