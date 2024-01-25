@@ -27,6 +27,7 @@ class SOCI_DECL blob
 {
 public:
     explicit blob(session & s);
+    blob(const blob&) = delete;
     ~blob();
 
     std::size_t get_len() const;
