@@ -350,10 +350,13 @@ struct postgresql_blob_backend : details::blob_backend
 
     void trim(std::size_t newLen) SOCI_OVERRIDE;
 
+    const char* data() const;
+    std::size_t set_data(char const* buf, std::size_t toWrite);
+
     postgresql_session_backend & session_;
 
-    unsigned long oid_; // oid of the large object
-    int fd_;            // descriptor of the large object
+    char* buf_;
+    size_t len_;
 };
 
 struct postgresql_session_backend : details::session_backend

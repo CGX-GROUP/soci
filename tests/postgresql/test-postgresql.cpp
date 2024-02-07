@@ -146,7 +146,7 @@ struct blob_table_creator : public table_creator_base
         sql <<
              "create table soci_test ("
              "    id integer,"
-             "    img oid"
+             "    img bytea"
              ")";
     }
 };
@@ -160,35 +160,37 @@ TEST_CASE("PostgreSQL blob", "[postgresql][blob]")
 
         char buf[] = "abcdefghijklmnopqrstuvwxyz";
 
-        sql << "insert into soci_test(id, img) values(7, lo_creat(-1))";
+        sql << "insert into soci_test(id, img) values(7, NULL)";
 
         // in PostgreSQL, BLOB operations must be within transaction block
         transaction tr(sql);
 
         {
             blob b(sql);
-
-            sql << "select img from soci_test where id = 7", into(b);
+            indicator ind;
+            sql << "select img from soci_test where id = 7", into(b, ind);
             CHECK(b.get_len() == 0);
 
+            ind = soci::indicator::i_ok;
             b.write(0, buf, sizeof(buf));
             CHECK(b.get_len() == sizeof(buf));
 
             b.append(buf, sizeof(buf));
             CHECK(b.get_len() == 2 * sizeof(buf));
+
+            sql << "update soci_test set img = :blob where id = 7" , use(b, ind, "blob");
         }
         {
             blob b(sql);
-            sql << "select img from soci_test where id = 7", into(b);
+            indicator ind;
+            sql << "select img from soci_test where id = 7", into(b, ind);
             CHECK(b.get_len() == 2 * sizeof(buf));
             char buf2[100];
             b.read(0, buf2, 10);
             CHECK(std::strncmp(buf2, "abcdefghij", 10) == 0);
         }
 
-        unsigned long oid;
-        sql << "select img from soci_test where id = 7", into(oid);
-        sql << "select lo_unlink(" << oid << ")";
+        sql << "update soci_test set img = NULL where id = 7";
     }
 
     // additional sibling test for read_from_start and write_from_start
@@ -199,35 +201,37 @@ TEST_CASE("PostgreSQL blob", "[postgresql][blob]")
 
         char buf[] = "abcdefghijklmnopqrstuvwxyz";
 
-        sql << "insert into soci_test(id, img) values(7, lo_creat(-1))";
+        sql << "insert into soci_test(id, img) values(7, NULL)";
 
         // in PostgreSQL, BLOB operations must be within transaction block
         transaction tr(sql);
 
         {
             blob b(sql);
-
-            sql << "select img from soci_test where id = 7", into(b);
+            indicator ind;
+            sql << "select img from soci_test where id = 7", into(b, ind);
             CHECK(b.get_len() == 0);
 
+            ind = soci::indicator::i_ok;
             b.write_from_start(buf, sizeof(buf));
             CHECK(b.get_len() == sizeof(buf));
 
             b.append(buf, sizeof(buf));
             CHECK(b.get_len() == 2 * sizeof(buf));
+
+            sql << "update soci_test set img = :blob where id = 7" , use(b, ind, "blob");
         }
         {
             blob b(sql);
-            sql << "select img from soci_test where id = 7", into(b);
+            indicator ind;
+            sql << "select img from soci_test where id = 7", into(b, ind);
             CHECK(b.get_len() == 2 * sizeof(buf));
             char buf2[100];
             b.read_from_start(buf2, 10);
             CHECK(std::strncmp(buf2, "abcdefghij", 10) == 0);
         }
 
-        unsigned long oid;
-        sql << "select img from soci_test where id = 7", into(oid);
-        sql << "select lo_unlink(" << oid << ")";
+        sql << "update soci_test set img = NULL where id = 7";
     }
 }
 

@@ -135,14 +135,17 @@ void postgresql_standard_use_type_backend::pre_use(indicator const * ind)
             break;
         case x_blob:
             {
-                blob * b = static_cast<blob *>(data_);
-                postgresql_blob_backend * bbe =
-                    static_cast<postgresql_blob_backend *>(b->get_backend());
+                blob* b = static_cast<blob*>(data_);
+                postgresql_blob_backend* bbe =
+                    static_cast<postgresql_blob_backend*>(b->get_backend());
 
-                std::size_t const bufSize
-                    = std::numeric_limits<unsigned long>::digits10 + 2;
+                std::size_t bufSize = 0;
+                unsigned char* escaped = PQescapeByteaConn(statement_.session_.conn_, (const unsigned char*)bbe->data(), bbe->get_len(), &bufSize);
+
                 buf_ = new char[bufSize];
-                snprintf(buf_, bufSize, "%lu", bbe->oid_);
+                memcpy(buf_, escaped, bufSize);
+
+                PQfreemem(escaped);
             }
             break;
         case x_xmltype:
