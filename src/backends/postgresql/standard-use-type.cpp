@@ -108,13 +108,34 @@ void postgresql_standard_use_type_backend::pre_use(indicator const * ind)
             break;
         case x_stdtm:
             {
-                std::size_t const bufSize = 80;
+ std::size_t const bufSize = 20;
                 buf_ = new char[bufSize];
-
-                std::tm const& t = exchange_type_cast<x_stdtm>(data_);
-                snprintf(buf_, bufSize, "%d-%02d-%02d %02d:%02d:%02d",
-                    t.tm_year + 1900, t.tm_mon + 1, t.tm_mday,
-                    t.tm_hour, t.tm_min, t.tm_sec);
+				
+                std::tm * t = static_cast<std::tm *>(data_);
+				if(t->tm_year > 3000)
+				{
+					std::strcpy(buf_, "infinity");
+				}
+				else if(t->tm_year == 0 && t->tm_mon == 0 && t->tm_mday == 1 && t->tm_hour <= 0 && t->tm_min <= 0 && t->tm_sec <= 0)
+				{
+					std::strcpy(buf_, "-infinity");
+				}
+				else if(t->tm_mday <= 0)
+				{
+					snprintf(buf_, bufSize, "%02d:%02d:%02d",
+						t->tm_hour, t->tm_min, t->tm_sec);
+				}
+				else if(t->tm_hour < 0)
+				{
+					snprintf(buf_, bufSize, "%d-%02d-%02d",
+						t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
+				}
+				else
+				{
+					snprintf(buf_, bufSize, "%d-%02d-%02d %02d:%02d:%02d",
+						t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+						t->tm_hour, t->tm_min, t->tm_sec);
+				}
             }
             break;
         case x_rowid:

@@ -107,8 +107,8 @@ void postgresql_standard_into_type_backend::post_fetch(
             break;
         case x_stdtm:
             // attempt to parse the string and convert to std::tm
-            parse_std_tm(buf, exchange_type_cast<x_stdtm>(data_));
-            break;
+            std::tm * dest = static_cast<std::tm *>(data_);
+            parse_std_tm(buf, *dest);            break;
         case x_rowid:
             {
                 // RowID is internally identical to unsigned long

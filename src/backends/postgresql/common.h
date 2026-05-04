@@ -75,6 +75,13 @@ std::size_t get_vector_size(void * p)
     return v->size();
 }
 
+
+// helper function for parsing doubles
+double string_to_double(char const * buf);
+
+// helper function for parsing datetime values
+void parse_std_tm(char const * buf, std::tm & t);
+
 } // namespace postgresql
 
 } // namespace details
