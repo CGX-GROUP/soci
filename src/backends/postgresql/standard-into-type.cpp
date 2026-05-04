@@ -107,8 +107,7 @@ void postgresql_standard_into_type_backend::post_fetch(
             break;
         case x_stdtm:
             // attempt to parse the string and convert to std::tm
-            std::tm dest;
-            soci::details::postgresql::parse_std_tm(buf, dest);
+            soci::details::postgresql::parse_std_tm(buf, exchange_type_cast<x_stdtm>(data_));
             break;
         case x_rowid:
             {
